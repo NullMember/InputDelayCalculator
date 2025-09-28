@@ -463,6 +463,11 @@
         function calculateDistance(acousticDelay, speedOfSound) {
             return (acousticDelay / 1000) * speedOfSound; // Convert from milliseconds
         }
+
+        function calculateNotchDistance(totalDelayMs) {
+            const delaySeconds = totalDelayMs / 1000;
+            return 1 / delaySeconds; // Frequency distance between notches
+        }
         
         // Calculate comb filter frequency response
         function calculateFrequencyResponse(totalDelayMs, minFreq = 20, maxFreq = 20000, numPoints = 4096) {
@@ -576,21 +581,21 @@
             document.getElementById('meanDistance').textContent = meanDistance.toFixed(2) + ' m';
             document.getElementById('meanAcousticDelay').textContent = meanAcousticDelay.toFixed(2) + ' ms';
             document.getElementById('meanTotalDelay').textContent = totalDelayMean.toFixed(2) + ' ms';
-            const meanNotchFrequencyDistance = (1 / (totalDelayMean / 1000)); // in Hz
+            const meanNotchFrequencyDistance = calculateNotchDistance(totalDelayMean); // in Hz
             const meanNotchStartFrequency = meanNotchFrequencyDistance / 2; // in Hz
             document.getElementById('meanNotchStartFrequency').textContent = meanNotchStartFrequency.toFixed(2) + ' Hz';
             document.getElementById('meanNotchFrequencyDistance').textContent = meanNotchFrequencyDistance.toFixed(2) + ' Hz';
             document.getElementById('minDistance').textContent = minDistance.toFixed(2) + ' m';
             document.getElementById('minAcousticDelay').textContent = minAcousticDelay.toFixed(2) + ' ms';
             document.getElementById('minTotalDelay').textContent = totalDelayMin.toFixed(2) + ' ms';
-            const minNotchFrequencyDistance = (1 / (totalDelayMin / 1000)); // in Hz
+            const minNotchFrequencyDistance = calculateNotchDistance(totalDelayMin); // in Hz
             const minNotchStartFrequency = minNotchFrequencyDistance / 2; // in Hz
             document.getElementById('minNotchStartFrequency').textContent = minNotchStartFrequency.toFixed(2) + ' Hz';
             document.getElementById('minNotchFrequencyDistance').textContent = minNotchFrequencyDistance.toFixed(2) + ' Hz';
             document.getElementById('maxDistance').textContent = maxDistance.toFixed(2) + ' m';
             document.getElementById('maxAcousticDelay').textContent = maxAcousticDelay.toFixed(2) + ' ms';
             document.getElementById('maxTotalDelay').textContent = totalDelayMax.toFixed(2) + ' ms';
-            const maxNotchFrequencyDistance = (1 / (totalDelayMax / 1000)); // in Hz
+            const maxNotchFrequencyDistance = calculateNotchDistance(totalDelayMax); // in Hz
             const maxNotchStartFrequency = maxNotchFrequencyDistance / 2; // in Hz
             document.getElementById('maxNotchStartFrequency').textContent = maxNotchStartFrequency.toFixed(2) + ' Hz';
             document.getElementById('maxNotchFrequencyDistance').textContent = maxNotchFrequencyDistance.toFixed(2) + ' Hz';
@@ -684,9 +689,12 @@
         function updateFromSpeedOfSound() {
             const speedOfSound = parseFloat(document.getElementById('speedOfSound').value);
             const meanDistance = parseFloat(document.getElementById('meanDistance').value);
+            const inputDelay = parseFloat(document.getElementById('inputDelay').value);
             
             if (!isNaN(speedOfSound) && !isNaN(meanDistance)) {
                 const acousticDelay = calculateAcousticDelay(meanDistance, speedOfSound);
+                const notchDistance = calculateNotchDistance(acousticDelay + inputDelay); // in Hz
+                document.getElementById('notchDistance').value = notchDistance.toFixed(2);
                 document.getElementById('acousticDelay').value = acousticDelay.toFixed(2);
                 updateCalculations();
             }
@@ -695,9 +703,12 @@
         function updateFromDistance() {
             const speedOfSound = parseFloat(document.getElementById('speedOfSound').value);
             const meanDistance = parseFloat(document.getElementById('meanDistance').value);
-            
-            if (!isNaN(speedOfSound) && !isNaN(meanDistance)) {
+            const inputDelay = parseFloat(document.getElementById('inputDelay').value);
+
+            if (!isNaN(speedOfSound) && !isNaN(meanDistance) && !isNaN(inputDelay)) {
                 const acousticDelay = calculateAcousticDelay(meanDistance, speedOfSound);
+                const notchDistance = calculateNotchDistance(acousticDelay + inputDelay); // in Hz
+                document.getElementById('notchDistance').value = notchDistance.toFixed(2);
                 document.getElementById('acousticDelay').value = acousticDelay.toFixed(2);
                 updateCalculations();
             }
@@ -706,9 +717,12 @@
         function updateFromAcousticDelay() {
             const speedOfSound = parseFloat(document.getElementById('speedOfSound').value);
             const acousticDelay = parseFloat(document.getElementById('acousticDelay').value);
+            const inputDelay = parseFloat(document.getElementById('inputDelay').value);
             
-            if (!isNaN(speedOfSound) && !isNaN(acousticDelay)) {
+            if (!isNaN(speedOfSound) && !isNaN(acousticDelay) && !isNaN(inputDelay)) {
                 const meanDistance = calculateDistance(acousticDelay, speedOfSound);
+                const notchDistance = calculateNotchDistance(acousticDelay + inputDelay); // in Hz
+                document.getElementById('notchDistance').value = notchDistance.toFixed(2);
                 document.getElementById('meanDistance').value = meanDistance.toFixed(2);
                 updateCalculations();
             }
@@ -717,7 +731,7 @@
         function updateFromInputDelay() {
             const inputDelay = parseFloat(document.getElementById('inputDelay').value);
             if (!isNaN(inputDelay)) {
-                const notchDistance = (1 / ((parseFloat(document.getElementById('meanAcousticDelay').textContent) + inputDelay) / 1000)); // in Hz
+                const notchDistance = calculateNotchDistance(parseFloat(document.getElementById('meanAcousticDelay').textContent) + inputDelay);
                 document.getElementById('notchDistance').value = notchDistance.toFixed(2);
                 updateCalculations();
             }
