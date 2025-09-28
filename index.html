@@ -510,7 +510,7 @@
             // where n = 0, 1, 2, 3, ...
             for (let n = 0; n < numFrequencies; n++) {
                 const freq = (2 * n + 1) / (2 * delaySeconds);
-                if (freq >= 20 && freq <= 20000) { // Only include audible frequencies
+                if (freq <= 20000) { // Only include audible frequencies
                     filteredFreqs.push(freq);
                 }
             }
