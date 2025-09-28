@@ -363,7 +363,7 @@
                 <tbody>
                     <tr>
                         <td class="row-label">Mean</td>
-                        <td id="meanDistance">2.0 m</td>
+                        <td id="meanDistanceTable">2.0 m</td>
                         <td id="meanAcousticDelay">5.83 ms</td>
                         <td id="meanTotalDelay">15.83 ms</td>
                         <td id="meanNotchStartFrequency">85.8 Hz</td>
@@ -578,7 +578,7 @@
             const totalDelayMax = maxAcousticDelay + inputDelay;
             
             // Update display values
-            document.getElementById('meanDistance').textContent = meanDistance.toFixed(2) + ' m';
+            document.getElementById('meanDistanceTable').textContent = meanDistance.toFixed(2) + ' m';
             document.getElementById('meanAcousticDelay').textContent = meanAcousticDelay.toFixed(2) + ' ms';
             document.getElementById('meanTotalDelay').textContent = totalDelayMean.toFixed(2) + ' ms';
             const meanNotchFrequencyDistance = calculateNotchDistance(totalDelayMean); // in Hz
