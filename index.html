@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Delay Calculator</title>
+    <!-- <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> -->
+    <script src="https://cdn.plot.ly/plotly-3.1.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        input[type="number"] {
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        input[type="number"]:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        
+        .unit {
+            font-size: 12px;
+            color: #777;
+            margin-top: 2px;
+        }
+        
+        .graphs {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .graph-container {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .graph-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .info-panel {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .calculated-values {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .calc-item {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .calc-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .calc-value {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .filtered-frequencies {
+            margin-top: 20px;
+        }
+        
+        .freq-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .freq-table th {
+            background: #4CAF50;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .freq-table td {
+            padding: 8px 12px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+        
+        .freq-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .freq-table tr:hover {
+            background-color: #f0f8f0;
+        }
+        
+        .table-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .collapsible-section {
+            margin-bottom: 20px;
+        }
+        
+        .collapsible-header {
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 16px;
+            user-select: none;
+            transition: background-color 0.3s ease;
+        }
+        
+        .collapsible-header:hover {
+            background: #45a049;
+        }
+        
+        .collapsible-arrow {
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+        
+        .collapsible-arrow.collapsed {
+            transform: rotate(-90deg);
+        }
+        
+        .collapsible-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .collapsible-content.collapsed {
+            max-height: 0;
+        }
+        
+        .collapsible-content.expanded {
+            max-height: 2000px;
+        }
+        
+        .content-wrapper {
+            padding: 20px 0;
+        }
+        
+        .field-description {
+            font-size: 11px;
+            color: #666;
+            margin-top: 3px;
+            line-height: 1.3;
+            font-style: italic;
+        }
+        
+        .control-group {
+            position: relative;
+        }
+        
+        .tooltip {
+            position: absolute;
+            top: -5px;
+            right: 0;
+            width: 16px;
+            height: 16px;
+            background: #4CAF50;
+            border-radius: 50%;
+            color: white;
+            text-align: center;
+            line-height: 16px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: help;
+            z-index: 10;
+        }
+        
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 20px;
+            right: 0;
+            background: #333;
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            font-size: 11px;
+            font-weight: normal;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .tooltip:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 15px;
+            right: 8px;
+            border: 5px solid transparent;
+            border-top-color: #333;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Input Delay Calculator</h1>
+    
+    <div class="container">
+        <div class="controls">
+            <div class="control-group">
+                <label for="temperature">Temperature</label>
+                <div class="tooltip" data-tooltip="Ambient air temperature affects sound speed">?</div>
+                <input type="number" id="temperature" value="20" step="0.1" min="-40" max="50">
+                <div class="unit">°C</div>
+                <div class="field-description">Ambient air temperature - automatically updates speed of sound</div>
+            </div>
+            
+            <div class="control-group">
+                <label for="speedOfSound">Speed of Sound</label>
+                <div class="tooltip" data-tooltip="Sound velocity in air (temperature dependent)">?</div>
+                <input type="number" id="speedOfSound" value="343.2" step="0.1" min="300" max="400">
+                <div class="unit">m/s</div>
+                <div class="field-description">Speed of sound in air - automatically updates temperature</div>
+            </div>
+            
+            <div class="control-group">
+                <label for="meanDistance">Monitor Microphone Distance</label>
+                <div class="tooltip" data-tooltip="Average distance from monitor speaker to microphone">?</div>
+                <input type="number" id="meanDistance" value="2.0" step="0.01" min="0.1" max="50">
+                <div class="unit">meters</div>
+                <div class="field-description">Distance from monitor to microphone - automatically updates acoustic delay</div>
+            </div>
+            
+            <div class="control-group">
+                <label for="acousticDelay">Acoustic Delay</label>
+                <div class="tooltip" data-tooltip="Time for sound to travel from monitor to mic">?</div>
+                <input type="number" id="acousticDelay" value="5.83" step="0.01" min="0" max="200">
+                <div class="unit">ms</div>
+                <div class="field-description">Natural delay caused by sound travel time - automatically updates monitor-microphone distance</div>
+            </div>
+            
+            <div class="control-group">
+                <label for="micRadius">Microphone Movement Radius</label>
+                <div class="tooltip" data-tooltip="How much the microphone can move from center position">?</div>
+                <input type="number" id="micRadius" value="0.5" step="0.01" min="0" max="10">
+                <div class="unit">meters</div>
+                <div class="field-description">Range of microphone movement around mean position (±radius)</div>
+            </div>
+            
+            <div class="control-group">
+                <label for="inputDelay">Input Delay</label>
+                <div class="tooltip" data-tooltip="Electronic delay added to create comb filter effect">?</div>
+                <input type="number" id="inputDelay" value="10" step="0.1" min="0" max="100">
+                <div class="unit">ms</div>
+                <div class="field-description">Electronic delay to add - creates notches at feedback frequencies</div>
+            </div>
+        </div>
+        
+        <div class="calculated-values">
+            <div class="calc-item">
+                <div class="calc-label">Mean Distance</div>
+                <div class="calc-value" id="meanDistance">2.0 m</div>
+            </div>
+            <div class="calc-item">
+                <div class="calc-label">Mean Acoustic Delay</div>
+                <div class="calc-value" id="meanAcousticDelay">5.83 ms</div>
+            </div>
+            <div class="calc-item">
+                <div class="calc-label">Mean Total Delay</div>
+                <div class="calc-value" id="meanTotalDelay">15.83 ms</div>
+            </div>
+            <div class="calc-item">
+                <div class="calc-label">Minimum Distance</div>
+                <div class="calc-value" id="minDistance">1.5 m</div>
+            </div>
+            <div class="calc-item">
+                <div class="calc-label">Min Acoustic Delay</div>
+                <div class="calc-value" id="minAcousticDelay">4.37 ms</div>
+            </div>
+            <div class="calc-item">
+                <div class="calc-label">Min Total Delay</div>
+                <div class="calc-value" id="minTotalDelay">14.37 ms</div>
+            </div>
+            <div class="calc-item">
+                <div class="calc-label">Maximum Distance</div>
+                <div class="calc-value" id="maxDistance">2.5 m</div>
+            </div>
+            <div class="calc-item">
+                <div class="calc-label">Max Acoustic Delay</div>
+                <div class="calc-value" id="maxAcousticDelay">7.28 ms</div>
+            </div>
+
+            <div class="calc-item">
+                <div class="calc-label">Max Total Delay</div>
+                <div class="calc-value" id="maxTotalDelay">17.28 ms</div>
+            </div>
+            <div class="calc-item">
+                <div class="calc-label">Acoustic Delay Range</div>
+                <div class="calc-value" id="acousticDelayRange">4.37 - 7.28 ms</div>
+            </div>
+            <div class="calc-item">
+                <div class="calc-label">Total Delay Range</div>
+                <div class="calc-value" id="totalDelayRange">14.37 - 17.28 ms</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="collapsible-section">
+        <div class="collapsible-header" onclick="toggleCollapse('frequencySection')">
+            <span>First 32 Filtered Frequencies (Hz)</span>
+            <span class="collapsible-arrow" id="frequencyArrow">▼</span>
+        </div>
+        <div class="collapsible-content expanded" id="frequencySection">
+            <div class="content-wrapper">
+                <div class="filtered-frequencies">
+                    <table class="freq-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Mean Distance</th>
+                                <th>Min Distance</th>
+                                <th>Max Distance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="frequencyTable">
+                            <!-- Table rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="collapsible-section">
+        <div class="collapsible-header" onclick="toggleCollapse('graphsSection')">
+            <span>Frequency Response Graphs</span>
+            <span class="collapsible-arrow" id="graphsArrow">▼</span>
+        </div>
+        <div class="collapsible-content expanded" id="graphsSection">
+            <div class="content-wrapper">
+                <div class="graphs">
+                    <div class="graph-container">
+                        <div class="graph-title">Frequency Response - Mean Distance</div>
+                        <div id="graph1" style="height: 400px;"></div>
+                    </div>
+                    
+                    <div class="graph-container">
+                        <div class="graph-title">Frequency Response - Minimum Distance</div>
+                        <div id="graph2" style="height: 400px;"></div>
+                    </div>
+                    
+                    <div class="graph-container">
+                        <div class="graph-title">Frequency Response - Maximum Distance</div>
+                        <div id="graph3" style="height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Calculate speed of sound from temperature (°C)
+        function calculateSpeedOfSound(tempCelsius) {
+            return 331.3 + (0.606 * tempCelsius);
+        }
+        
+        // Calculate temperature from speed of sound
+        function calculateTemperature(speedOfSound) {
+            return (speedOfSound - 331.3) / 0.606;
+        }
+        
+        // Calculate acoustic delay from distance and speed of sound
+        function calculateAcousticDelay(distance, speedOfSound) {
+            return (distance / speedOfSound) * 1000; // Convert to milliseconds
+        }
+        
+        // Calculate distance from acoustic delay and speed of sound
+        function calculateDistance(acousticDelay, speedOfSound) {
+            return (acousticDelay / 1000) * speedOfSound; // Convert from milliseconds
+        }
+        
+        // Calculate comb filter frequency response
+        function calculateFrequencyResponse(totalDelayMs, minFreq = 20, maxFreq = 20000, numPoints = 4096) {
+            const frequencies = [];
+            const magnitudes = [];
+            
+            // Log-spaced frequency array
+            const logMin = Math.log10(minFreq);
+            const logMax = Math.log10(maxFreq);
+            
+            for (let i = 0; i < numPoints; i++) {
+                const logFreq = logMin + (logMax - logMin) * i / (numPoints - 1);
+                const freq = Math.pow(10, logFreq);
+                frequencies.push(freq);
+                
+                // Comb filter transfer function: H(f) = 1 + e^(-j*2*pi*f*delay)
+                // Magnitude: |H(f)| = |1 + cos(2*pi*f*delay) - j*sin(2*pi*f*delay)|
+                // |H(f)| = sqrt((1 + cos(2*pi*f*delay))^2 + sin^2(2*pi*f*delay))
+                // |H(f)| = sqrt(2 + 2*cos(2*pi*f*delay)) = sqrt(2*(1 + cos(2*pi*f*delay)))
+                // Using identity: 1 + cos(x) = 2*cos^2(x/2)
+                // |H(f)| = 2*|cos(pi*f*delay)|
+                
+                const delaySeconds = totalDelayMs / 1000;
+                const phase = Math.PI * freq * delaySeconds;
+                const magnitude = 2 * Math.abs(Math.cos(phase));
+                const magnitudeDb = 20 * Math.log10(magnitude + 1e-10); // Add small value to avoid log(0)
+                
+                magnitudes.push(magnitudeDb);
+            }
+            
+            return { frequencies, magnitudes };
+        }
+        
+        // Calculate the first N frequencies that will be filtered (nulls in comb filter)
+        function calculateFilteredFrequencies(totalDelayMs, numFrequencies = 32) {
+            const filteredFreqs = [];
+            const delaySeconds = totalDelayMs / 1000;
+            
+            // Nulls occur at frequencies where: f = (2n + 1) / (2 * delay)
+            // where n = 0, 1, 2, 3, ...
+            for (let n = 0; n < numFrequencies; n++) {
+                const freq = (2 * n + 1) / (2 * delaySeconds);
+                if (freq >= 20 && freq <= 20000) { // Only include audible frequencies
+                    filteredFreqs.push(freq);
+                }
+            }
+            
+            return filteredFreqs.slice(0, numFrequencies); // Return first N frequencies
+        }
+        
+        // Update the frequency table
+        function updateFrequencyTable(totalDelayMean, totalDelayMin, totalDelayMax) {
+            const freqsMean = calculateFilteredFrequencies(totalDelayMean, 32);
+            const freqsMin = calculateFilteredFrequencies(totalDelayMin, 32);
+            const freqsMax = calculateFilteredFrequencies(totalDelayMax, 32);
+            
+            const tableBody = document.getElementById('frequencyTable');
+            tableBody.innerHTML = '';
+            
+            const maxRows = Math.max(freqsMean.length, freqsMin.length, freqsMax.length, 32);
+            
+            for (let i = 0; i < maxRows; i++) {
+                const row = document.createElement('tr');
+                
+                // Row number
+                const cellNum = document.createElement('td');
+                cellNum.textContent = i + 1;
+                row.appendChild(cellNum);
+                
+                // Mean frequency
+                const cellMean = document.createElement('td');
+                cellMean.textContent = i < freqsMean.length ? freqsMean[i].toFixed(1) : '-';
+                row.appendChild(cellMean);
+                
+                // Min frequency
+                const cellMin = document.createElement('td');
+                cellMin.textContent = i < freqsMin.length ? freqsMin[i].toFixed(1) : '-';
+                row.appendChild(cellMin);
+                
+                // Max frequency
+                const cellMax = document.createElement('td');
+                cellMax.textContent = i < freqsMax.length ? freqsMax[i].toFixed(1) : '-';
+                row.appendChild(cellMax);
+                
+                tableBody.appendChild(row);
+            }
+        }
+        
+        // Update all calculations and displays
+        function updateCalculations() {
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const speedOfSound = parseFloat(document.getElementById('speedOfSound').value);
+            const meanDistance = parseFloat(document.getElementById('meanDistance').value);
+            const acousticDelay = parseFloat(document.getElementById('acousticDelay').value);
+            const micRadius = parseFloat(document.getElementById('micRadius').value);
+            const inputDelay = parseFloat(document.getElementById('inputDelay').value);
+            
+            // Calculate derived values
+            const minDistance = Math.max(0.1, meanDistance - micRadius);
+            const maxDistance = meanDistance + micRadius;
+            const minAcousticDelay = calculateAcousticDelay(minDistance, speedOfSound);
+            const maxAcousticDelay = calculateAcousticDelay(maxDistance, speedOfSound);
+            const meanAcousticDelay = calculateAcousticDelay(meanDistance, speedOfSound);
+            
+            const totalDelayMean = meanAcousticDelay + inputDelay;
+            const totalDelayMin = minAcousticDelay + inputDelay;
+            const totalDelayMax = maxAcousticDelay + inputDelay;
+            
+            // Update display values
+            document.getElementById('meanDistance').textContent = meanDistance.toFixed(2) + ' m';
+            document.getElementById('meanAcousticDelay').textContent = meanAcousticDelay.toFixed(2) + ' ms';
+            document.getElementById('meanTotalDelay').textContent = totalDelayMean.toFixed(2) + ' ms';
+            document.getElementById('minDistance').textContent = minDistance.toFixed(2) + ' m';
+            document.getElementById('minAcousticDelay').textContent = minAcousticDelay.toFixed(2) + ' ms';
+            document.getElementById('minTotalDelay').textContent = totalDelayMin.toFixed(2) + ' ms';
+            document.getElementById('maxDistance').textContent = maxDistance.toFixed(2) + ' m';
+            document.getElementById('maxAcousticDelay').textContent = maxAcousticDelay.toFixed(2) + ' ms';
+            document.getElementById('maxTotalDelay').textContent = totalDelayMax.toFixed(2) + ' ms';
+            document.getElementById('acousticDelayRange').textContent = 
+                minAcousticDelay.toFixed(2) + ' - ' + maxAcousticDelay.toFixed(2) + ' ms';
+            document.getElementById('totalDelayRange').textContent = 
+                totalDelayMin.toFixed(2) + ' - ' + totalDelayMax.toFixed(2) + ' ms';
+            
+            // Generate frequency responses
+            const responseMean = calculateFrequencyResponse(totalDelayMean);
+            const responseMin = calculateFrequencyResponse(totalDelayMin);
+            const responseMax = calculateFrequencyResponse(totalDelayMax);
+            
+            // Plot graphs
+            plotFrequencyResponse('graph1', responseMean, 'Mean Distance', '#1f77b4');
+            plotFrequencyResponse('graph2', responseMin, 'Minimum Distance', '#ff7f0e');
+            plotFrequencyResponse('graph3', responseMax, 'Maximum Distance', '#2ca02c');
+            
+            // Update frequency table
+            updateFrequencyTable(totalDelayMean, totalDelayMin, totalDelayMax);
+        }
+        
+        // Plot frequency response using Plotly
+        function plotFrequencyResponse(elementId, response, title, color) {
+            const trace = {
+                x: response.frequencies,
+                y: response.magnitudes,
+                type: 'scatter',
+                mode: 'lines',
+                name: title,
+                line: { color: color, width: 2 }
+            };
+            
+            const layout = {
+                title: {
+                    text: title + ' - Comb Filter Response',
+                    font: { size: 14 }
+                },
+                xaxis: {
+                    title: 'Frequency (Hz)',
+                    type: 'log',
+                    range: [Math.log10(20), Math.log10(20000)],
+                    gridcolor: '#f0f0f0'
+                },
+                yaxis: {
+                    title: 'Magnitude (dB)',
+                    range: [-60, 12],
+                    gridcolor: '#f0f0f0'
+                },
+                margin: { l: 60, r: 20, t: 40, b: 50 },
+                paper_bgcolor: 'white',
+                plot_bgcolor: 'white',
+                showlegend: false
+            };
+            
+            const config = {
+                displayModeBar: false,
+                responsive: true
+            };
+            
+            Plotly.newPlot(elementId, [trace], layout, config);
+        }
+        
+        // Event listeners for real-time updates
+        document.getElementById('temperature').addEventListener('input', function() {
+            const temp = parseFloat(this.value);
+            if (!isNaN(temp)) {
+                const speed = calculateSpeedOfSound(temp);
+                document.getElementById('speedOfSound').value = speed.toFixed(1);
+                updateFromSpeedOfSound();
+            }
+        });
+        
+        document.getElementById('speedOfSound').addEventListener('input', function() {
+            const speed = parseFloat(this.value);
+            if (!isNaN(speed)) {
+                const temp = calculateTemperature(speed);
+                document.getElementById('temperature').value = temp.toFixed(1);
+                updateFromSpeedOfSound();
+            }
+        });
+        
+        document.getElementById('meanDistance').addEventListener('input', function() {
+            updateFromDistance();
+        });
+        
+        document.getElementById('acousticDelay').addEventListener('input', function() {
+            updateFromAcousticDelay();
+        });
+        
+        document.getElementById('micRadius').addEventListener('input', updateCalculations);
+        document.getElementById('inputDelay').addEventListener('input', updateCalculations);
+        
+        function updateFromSpeedOfSound() {
+            const speedOfSound = parseFloat(document.getElementById('speedOfSound').value);
+            const meanDistance = parseFloat(document.getElementById('meanDistance').value);
+            
+            if (!isNaN(speedOfSound) && !isNaN(meanDistance)) {
+                const acousticDelay = calculateAcousticDelay(meanDistance, speedOfSound);
+                document.getElementById('acousticDelay').value = acousticDelay.toFixed(2);
+                updateCalculations();
+            }
+        }
+        
+        function updateFromDistance() {
+            const speedOfSound = parseFloat(document.getElementById('speedOfSound').value);
+            const meanDistance = parseFloat(document.getElementById('meanDistance').value);
+            
+            if (!isNaN(speedOfSound) && !isNaN(meanDistance)) {
+                const acousticDelay = calculateAcousticDelay(meanDistance, speedOfSound);
+                document.getElementById('acousticDelay').value = acousticDelay.toFixed(2);
+                updateCalculations();
+            }
+        }
+        
+        function updateFromAcousticDelay() {
+            const speedOfSound = parseFloat(document.getElementById('speedOfSound').value);
+            const acousticDelay = parseFloat(document.getElementById('acousticDelay').value);
+            
+            if (!isNaN(speedOfSound) && !isNaN(acousticDelay)) {
+                const meanDistance = calculateDistance(acousticDelay, speedOfSound);
+                document.getElementById('meanDistance').value = meanDistance.toFixed(2);
+                updateCalculations();
+            }
+        }
+        
+        // Toggle collapsible sections
+        function toggleCollapse(sectionId) {
+            const content = document.getElementById(sectionId);
+            const arrow = document.getElementById(sectionId.replace('Section', 'Arrow'));
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                content.classList.add('collapsed');
+                arrow.classList.add('collapsed');
+            } else {
+                content.classList.remove('collapsed');
+                content.classList.add('expanded');
+                arrow.classList.remove('collapsed');
+            }
+            
+            // Resize graphs if they are in the graphs section and section is expanded
+            if (sectionId === 'graphsSection' && content.classList.contains('expanded')) {
+                setTimeout(() => {
+                    Plotly.Plots.resize('graph1');
+                    Plotly.Plots.resize('graph2');
+                    Plotly.Plots.resize('graph3');
+                }, 300); // Wait for animation to complete
+            }
+        }
+        
+        // Initial calculation and display
+        updateCalculations();
+    </script>
+</body>
+</html>
