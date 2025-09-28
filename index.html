@@ -94,28 +94,46 @@
         }
         
         .calculated-values {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
             margin-top: 15px;
         }
         
-        .calc-item {
-            background: #f9f9f9;
-            padding: 10px;
-            border-radius: 5px;
+        .calculated-values table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .calculated-values th {
+            background: #4CAF50;
+            color: white;
+            padding: 12px;
             text-align: center;
-        }
-        
-        .calc-label {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-        
-        .calc-value {
             font-weight: bold;
-            color: #333;
+            font-size: 14px;
+        }
+        
+        .calculated-values td {
+            padding: 10px 12px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+        
+        .calculated-values tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .calculated-values tr:hover {
+            background: #f0f8f0;
+        }
+        
+        .calculated-values .row-label {
+            font-weight: bold;
+            background: #e8f5e8;
+            color: #2e7d32;
         }
         
         .filtered-frequencies {
@@ -316,58 +334,59 @@
             <div class="control-group">
                 <label for="inputDelay">Input Delay</label>
                 <div class="tooltip" data-tooltip="Electronic delay added to create comb filter effect">?</div>
-                <input type="number" id="inputDelay" value="10" step="0.1" min="0" max="100">
+                <input type="number" id="inputDelay" value="0" step="0.1" min="0" max="100">
                 <div class="unit">ms</div>
-                <div class="field-description">Electronic delay to add - creates notches at feedback frequencies</div>
+                <div class="field-description">Electronic delay to add - automatically updates notch distance</div>
+            </div>
+
+            <div class="control-group">
+                <label for="notchDistance">Notch Frequency Distance</label>
+                <div class="tooltip" data-tooltip="Frequency distance between notches created by comb filtering. Starting frequency will be half of this value. Calculated using total delay.">?</div>
+                <input type="number" id="notchDistance" value="171.6" step="0.01" min="0" max="20000">
+                <div class="unit">Hz</div>
+                <div class="field-description">Frequency distance between notches - automatically updates input delay</div>
             </div>
         </div>
         
         <div class="calculated-values">
-            <div class="calc-item">
-                <div class="calc-label">Mean Distance</div>
-                <div class="calc-value" id="meanDistance">2.0 m</div>
-            </div>
-            <div class="calc-item">
-                <div class="calc-label">Mean Acoustic Delay</div>
-                <div class="calc-value" id="meanAcousticDelay">5.83 ms</div>
-            </div>
-            <div class="calc-item">
-                <div class="calc-label">Mean Total Delay</div>
-                <div class="calc-value" id="meanTotalDelay">15.83 ms</div>
-            </div>
-            <div class="calc-item">
-                <div class="calc-label">Minimum Distance</div>
-                <div class="calc-value" id="minDistance">1.5 m</div>
-            </div>
-            <div class="calc-item">
-                <div class="calc-label">Min Acoustic Delay</div>
-                <div class="calc-value" id="minAcousticDelay">4.37 ms</div>
-            </div>
-            <div class="calc-item">
-                <div class="calc-label">Min Total Delay</div>
-                <div class="calc-value" id="minTotalDelay">14.37 ms</div>
-            </div>
-            <div class="calc-item">
-                <div class="calc-label">Maximum Distance</div>
-                <div class="calc-value" id="maxDistance">2.5 m</div>
-            </div>
-            <div class="calc-item">
-                <div class="calc-label">Max Acoustic Delay</div>
-                <div class="calc-value" id="maxAcousticDelay">7.28 ms</div>
-            </div>
-
-            <div class="calc-item">
-                <div class="calc-label">Max Total Delay</div>
-                <div class="calc-value" id="maxTotalDelay">17.28 ms</div>
-            </div>
-            <div class="calc-item">
-                <div class="calc-label">Acoustic Delay Range</div>
-                <div class="calc-value" id="acousticDelayRange">4.37 - 7.28 ms</div>
-            </div>
-            <div class="calc-item">
-                <div class="calc-label">Total Delay Range</div>
-                <div class="calc-value" id="totalDelayRange">14.37 - 17.28 ms</div>
-            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Distance</th>
+                        <th>Acoustic Delay</th>
+                        <th>Total Delay</th>
+                        <th>Notch Starting Frequency</th>
+                        <th>Notch Frequency Distance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="row-label">Mean</td>
+                        <td id="meanDistance">2.0 m</td>
+                        <td id="meanAcousticDelay">5.83 ms</td>
+                        <td id="meanTotalDelay">15.83 ms</td>
+                        <td id="meanNotchStartFrequency">85.8 Hz</td>
+                        <td id="meanNotchFrequencyDistance">171.6 Hz</td>
+                    </tr>
+                    <tr>
+                        <td class="row-label">Min</td>
+                        <td id="minDistance">1.5 m</td>
+                        <td id="minAcousticDelay">4.37 ms</td>
+                        <td id="minTotalDelay">14.37 ms</td>
+                        <td id="minNotchStartFrequency">85.8 Hz</td>
+                        <td id="minNotchFrequencyDistance">171.6 Hz</td>
+                    </tr>
+                    <tr>
+                        <td class="row-label">Max</td>
+                        <td id="maxDistance">2.5 m</td>
+                        <td id="maxAcousticDelay">7.28 ms</td>
+                        <td id="maxTotalDelay">17.28 ms</td>
+                        <td id="maxNotchStartFrequency">85.8 Hz</td>
+                        <td id="maxNotchFrequencyDistance">171.6 Hz</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -540,6 +559,7 @@
             const acousticDelay = parseFloat(document.getElementById('acousticDelay').value);
             const micRadius = parseFloat(document.getElementById('micRadius').value);
             const inputDelay = parseFloat(document.getElementById('inputDelay').value);
+            const notchDistance = parseFloat(document.getElementById('notchDistance').value);
             
             // Calculate derived values
             const minDistance = Math.max(0.1, meanDistance - micRadius);
@@ -556,17 +576,25 @@
             document.getElementById('meanDistance').textContent = meanDistance.toFixed(2) + ' m';
             document.getElementById('meanAcousticDelay').textContent = meanAcousticDelay.toFixed(2) + ' ms';
             document.getElementById('meanTotalDelay').textContent = totalDelayMean.toFixed(2) + ' ms';
+            const meanNotchFrequencyDistance = (1 / (totalDelayMean / 1000)); // in Hz
+            const meanNotchStartFrequency = meanNotchFrequencyDistance / 2; // in Hz
+            document.getElementById('meanNotchStartFrequency').textContent = meanNotchStartFrequency.toFixed(2) + ' Hz';
+            document.getElementById('meanNotchFrequencyDistance').textContent = meanNotchFrequencyDistance.toFixed(2) + ' Hz';
             document.getElementById('minDistance').textContent = minDistance.toFixed(2) + ' m';
             document.getElementById('minAcousticDelay').textContent = minAcousticDelay.toFixed(2) + ' ms';
             document.getElementById('minTotalDelay').textContent = totalDelayMin.toFixed(2) + ' ms';
+            const minNotchFrequencyDistance = (1 / (totalDelayMin / 1000)); // in Hz
+            const minNotchStartFrequency = minNotchFrequencyDistance / 2; // in Hz
+            document.getElementById('minNotchStartFrequency').textContent = minNotchStartFrequency.toFixed(2) + ' Hz';
+            document.getElementById('minNotchFrequencyDistance').textContent = minNotchFrequencyDistance.toFixed(2) + ' Hz';
             document.getElementById('maxDistance').textContent = maxDistance.toFixed(2) + ' m';
             document.getElementById('maxAcousticDelay').textContent = maxAcousticDelay.toFixed(2) + ' ms';
             document.getElementById('maxTotalDelay').textContent = totalDelayMax.toFixed(2) + ' ms';
-            document.getElementById('acousticDelayRange').textContent = 
-                minAcousticDelay.toFixed(2) + ' - ' + maxAcousticDelay.toFixed(2) + ' ms';
-            document.getElementById('totalDelayRange').textContent = 
-                totalDelayMin.toFixed(2) + ' - ' + totalDelayMax.toFixed(2) + ' ms';
-            
+            const maxNotchFrequencyDistance = (1 / (totalDelayMax / 1000)); // in Hz
+            const maxNotchStartFrequency = maxNotchFrequencyDistance / 2; // in Hz
+            document.getElementById('maxNotchStartFrequency').textContent = maxNotchStartFrequency.toFixed(2) + ' Hz';
+            document.getElementById('maxNotchFrequencyDistance').textContent = maxNotchFrequencyDistance.toFixed(2) + ' Hz';
+
             // Generate frequency responses
             const responseMean = calculateFrequencyResponse(totalDelayMean);
             const responseMin = calculateFrequencyResponse(totalDelayMin);
@@ -650,7 +678,8 @@
         });
         
         document.getElementById('micRadius').addEventListener('input', updateCalculations);
-        document.getElementById('inputDelay').addEventListener('input', updateCalculations);
+        document.getElementById('inputDelay').addEventListener('input', updateFromInputDelay);
+        document.getElementById('notchDistance').addEventListener('input', updateFromNotchDistance);
         
         function updateFromSpeedOfSound() {
             const speedOfSound = parseFloat(document.getElementById('speedOfSound').value);
@@ -681,6 +710,25 @@
             if (!isNaN(speedOfSound) && !isNaN(acousticDelay)) {
                 const meanDistance = calculateDistance(acousticDelay, speedOfSound);
                 document.getElementById('meanDistance').value = meanDistance.toFixed(2);
+                updateCalculations();
+            }
+        }
+
+        function updateFromInputDelay() {
+            const inputDelay = parseFloat(document.getElementById('inputDelay').value);
+            if (!isNaN(inputDelay)) {
+                const notchDistance = (1 / ((parseFloat(document.getElementById('meanAcousticDelay').textContent) + inputDelay) / 1000)); // in Hz
+                document.getElementById('notchDistance').value = notchDistance.toFixed(2);
+                updateCalculations();
+            }
+        }
+
+        function updateFromNotchDistance() {
+            const notchDistance = parseFloat(document.getElementById('notchDistance').value);
+            if (!isNaN(notchDistance)) {
+                const meanAcousticDelay = parseFloat(document.getElementById('meanAcousticDelay').textContent);
+                const inputDelay = (1 / notchDistance) * 1000 - meanAcousticDelay; // in ms
+                document.getElementById('inputDelay').value = inputDelay.toFixed(2);
                 updateCalculations();
             }
         }
